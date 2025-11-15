@@ -45,11 +45,11 @@ while True:
                 
             sumar = input('¿Desea sumar la cantidad ingresada al producto existente? (si/no): ')
                 
-            if sumar.lower() in ('si', 'sí'):
+            if sumar.lower() in ('si', 'sí', 's'):
                 p['cantidad'] += cantidad
                 print('La cantidad se sumó correctamente.\n')
             
-            elif sumar.lower() in ('no', 'nó'):
+            elif sumar.lower() in ('no', 'n'):
                 print('No se sumó la cantidad y no se agregó un producto nuevo.\n')
             
             else:
@@ -58,7 +58,7 @@ while True:
         else:
             producto = {'nombre': nombre, 'precio': precio, 'cantidad': cantidad}
             inventario.append(producto)
-            print('Producto añadido exitosamente.\n')
+            print('Producto agregado exitosamente.\n')
 
 
     # MOSTRAR INVENTARIO
@@ -77,9 +77,10 @@ while True:
     # MODIFICAR PRODUCTO
     elif eleccion == 3:
         print('Modificando producto:\n')
-        nombre = input('¿Qué producto desea modificar?: ').strip().title()
         
-        p = buscar_producto(nombre, inventario)
+        producto = input('¿Qué producto desea modificar?: ').strip().title()
+        
+        p = buscar_producto(producto, inventario)
 
         if p:
             print(f"\nNombre: {p['nombre']}\nPrecio: ${p['precio']}\nCantidad: {p['cantidad']}\n")
@@ -107,12 +108,30 @@ while True:
                     print('Opción no válida.\n')
                 
         else:
-            print(f'El producto "{nombre.lower()}" no existe en el inventario.\n')
+            print(f'El producto "{producto.lower()}" no existe en el inventario.\n')
 
 
     # ELIMINAR PRODUCTO
     elif eleccion == 4:
-        print('\nOpción no implementada.\n')
+        print('Eliminando producto:\n')
+        
+        producto = input(f'Que prodcuto desea eliminar: ').strip().title()
+        
+        p = buscar_producto(producto, inventario)
+        
+        if p:
+            print(f"\nNombre: {p['nombre']}\nPrecio: ${p['precio']}\nCantidad: {p['cantidad']}\n")
+            
+            eliminado = input(f'Desea eliminar dicho producto?(si/no): ').lower()
+            if eliminado in ('si', 'sí', 's'):
+                inventario.remove(p)
+                print('El producto se elimino correctamente')
+            
+            elif eliminado in ('no', 'n'):
+                print('El pruducto no sera eliminado')
+                
+            else:
+                print('Opcion no valida')
 
 
     # SALIR
