@@ -9,6 +9,7 @@ inventario = []
 # MENÚ PRINCIPAL
 def mostrar_menu():
     """Menú principal del sistema."""
+    
     print('Menú principal:\n')
     print('1. Agregar producto.')
     print('2. Mostrar inventario.')
@@ -20,6 +21,7 @@ def mostrar_menu():
 # BÚSQUEDA DE PRODUCTO EN EL INVENTARIO
 def buscar_producto(nombre, inventario):
     """Busca un producto por nombre y devuelve el diccionario si existe."""
+    
     for p in inventario:
         if p['nombre'].lower() == nombre.lower():
             return p
@@ -28,6 +30,7 @@ def buscar_producto(nombre, inventario):
 
 def pedir_entero(mensaje):
     """Valida la entrada de un número entero."""
+    
     while True:
         try:
             return int(input(mensaje))
@@ -37,6 +40,7 @@ def pedir_entero(mensaje):
 
 def pedir_flotante(mensaje):
     """Valida la entrada de un número flotante."""
+    
     while True:
         try:
             return float(input(mensaje))
@@ -44,8 +48,21 @@ def pedir_flotante(mensaje):
             print("Error: ingrese un número válido.")
 
 
+def preguntar_si_no(mensaje):
+    """Solicita una respuesta sí/no y devuelve True o False."""
+    
+    while True:
+        r = input(mensaje).strip().lower()
+        if r in ('si', 'sí', 's'):
+            return True
+        if r in ('no', 'n'):
+            return False
+        print("Opción no válida. Responda «sí» o «no».")
+
+
 def agregar_producto(inventario):
-    """Agrega un producto nuevo o suma la cantidad si ya existe."""
+    """Agrega un producto nuevo o suma la cantidad si ya existe.""" 
+    
     print('Agregando producto:\n')
 
     nombre = input('Ingrese el nombre del producto: ').strip().title()
@@ -54,28 +71,36 @@ def agregar_producto(inventario):
 
     p = buscar_producto(nombre, inventario)
 
-    if p:
-        print(f'El producto "{nombre}" ya existe en el inventario.')
+    if (precio >= 0) and (cantidad >= 0):
+        
+        if p:
+            print(f'El producto "{nombre}" ya existe en el inventario.')
+            print(f'{p["nombre"]} | Precio: ${p["precio"]:.2f} | Cantidad: {p["cantidad"]}')
 
-        sumar = input('¿Desea sumar la cantidad ingresada al producto existente? (si/no): ').lower()
+            if preguntar_si_no('¿Desea sumar la cantidad ingresada al producto existente? (si/no): '):
+                p['cantidad'] += cantidad
+                print('La cantidad se sumó correctamente.\n')
 
-        if sumar in ('si', 'sí', 's'):
-            p['cantidad'] += cantidad
-            print('La cantidad se sumó correctamente.\n')
-
-        elif sumar in ('no', 'n'):
-            print('No se sumó la cantidad y no se agregó un producto nuevo.\n')  # Punto agregado
-
+            else:
+                print('No se sumó la cantidad y no se agregó un producto nuevo.\n')
+        
         else:
-            print('Opción no válida.\n')
-    else:
-        producto = {'nombre': nombre, 'precio': precio, 'cantidad': cantidad}
-        inventario.append(producto)
-        print('Producto agregado correctamente.\n')
+            producto = {'nombre': nombre, 'precio': precio, 'cantidad': cantidad}
+            inventario.append(producto)
+            print('Producto agregado correctamente.\n')
+            
+    elif (precio < 0) or (cantidad < 0):
+        
+        if precio < 0:
+            print('El precio no puede ser un número negativo.')
+        
+        if cantidad < 0:
+            print('La cantidad no debería ser un número negativo.')
 
 
 def mostrar_inventario(inventario):
     """Muestra los productos del inventario."""
+    
     print('Mostrando inventario:\n')
 
     if len(inventario) == 0:
@@ -83,26 +108,27 @@ def mostrar_inventario(inventario):
         return
 
     for p in inventario:
-        print(f"{p['nombre']} | Precio: ${p['precio']} | Cantidad: {p['cantidad']}.")
+        print(f"{p['nombre']} | Precio: ${p['precio']:.2f} | Cantidad: {p['cantidad']}")
     print()
 
 
 def modificar_producto(inventario):
-    """Permite modificar el nombre, el precio o la cantidad de un producto."""
+    """Permite modificar el nombre, el precio o la cantidad de un producto.""" 
+    
     print('Modificando producto:\n')
 
     producto = input('¿Qué producto desea modificar?: ').strip().title()
     p = buscar_producto(producto, inventario)
 
     if p:
-        print(f"\nNombre: {p['nombre']}\nPrecio: ${p['precio']}\nCantidad: {p['cantidad']}\n")
+        print(f'\nNombre: {p["nombre"]}\nPrecio: ${p["precio"]:.2f}\nCantidad: {p["cantidad"]}\n')
 
         while True:
             print('Datos disponibles para modificar:')
-            print('1. Nombre.')
-            print('2. Precio.')
-            print('3. Cantidad.')
-            print('4. Salir.\n')
+            print('1. Nombre')
+            print('2. Precio')
+            print('3. Cantidad')
+            print('4. Salir\n')
 
             cambio = pedir_entero('¿Qué dato desea modificar?: ')
 
@@ -111,43 +137,46 @@ def modificar_producto(inventario):
                 p['nombre'] = nuevo_nombre.strip().title()
 
             elif cambio == 2:
-                nuevo_precio = pedir_flotante(f'Nuevo precio (actual ${p["precio"]}): ')
-                p['precio'] = nuevo_precio
+                nuevo_precio = pedir_flotante(f'Nuevo precio (actual ${p["precio"]:.2f}): ')
+                if nuevo_precio >= 0:
+                    p['precio'] = nuevo_precio
+                else:
+                    print('El precio debe ser un número positivo.')
 
             elif cambio == 3:
                 nueva_cantidad = pedir_entero(f'Nueva cantidad (actual {p["cantidad"]}): ')
-                p['cantidad'] = nueva_cantidad
+                if nueva_cantidad >= 0:
+                    p['cantidad'] = nueva_cantidad
+                else:
+                    print('La cantidad debe ser un número positivo.')
 
             elif cambio == 4:
                 break
 
             else:
                 print('Opción no válida.\n')
+    
     else:
         print(f'El producto "{producto}" no existe en el inventario.\n')
 
 
 def eliminar_producto(inventario):
     """Elimina un producto del inventario si existe."""
+    
     print('Eliminando producto:\n')
 
     producto = input('¿Qué producto desea eliminar?: ').strip().title()
     p = buscar_producto(producto, inventario)
 
     if p:
-        print(f"\nNombre: {p['nombre']}\nPrecio: ${p['precio']}\nCantidad: {p['cantidad']}\n")
+        print(f"\nNombre: {p['nombre']}\nPrecio: ${p['precio']:.2f}\nCantidad: {p['cantidad']}\n")
 
-        eliminado = input('¿Desea eliminar este producto? (si/no): ').lower()
-
-        if eliminado in ('si', 'sí', 's'):
+        if preguntar_si_no('¿Desea eliminar este producto? (si/no): '):
             inventario.remove(p)
             print('El producto se eliminó correctamente.\n')
 
-        elif eliminado in ('no', 'n'):
-            print('El producto no será eliminado.\n')
-
         else:
-            print('Opción no válida.\n')
+            print('El producto no será eliminado.\n')
 
 
 # BUCLE PRINCIPAL
