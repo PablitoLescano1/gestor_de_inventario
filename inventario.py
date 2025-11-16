@@ -16,8 +16,6 @@ def mostrar_menu():
     print('4. Eliminar producto')
     print('5. Salir\n')
 
-
-# BÚSQUEDA DE PRODUCTO
 def buscar_producto(nombre, inventario):
     """Busca un producto por nombre y devuelve el diccionario si existe."""
     for p in inventario:
@@ -25,15 +23,30 @@ def buscar_producto(nombre, inventario):
             return p
     return None
 
+def pedir_entero(mensaje):
+    """Valida la entrada de un número entero"""
+    
+    while True:
+        try:
+            return int(input(mensaje))
+        except ValueError:
+            print("Error: ingrese un número entero válido.")
 
-# AGREGAR PRODUCTO
+def pedir_flotante(mensaje):
+    """Valida la entrada de un número flotante"""
+    while True:
+        try:
+            return float(input(mensaje))
+        except ValueError:
+            print("Error: ingrese un número válido.")
+
 def agregar_producto(inventario):
     """Agrega un producto nuevo o suma cantidad si ya existe."""
     print('Agregando producto:\n')
     
     nombre = input('Ingrese el nombre del producto: ').strip().title()
-    precio = float(input('Ingrese el precio del producto: '))
-    cantidad = int(input('Ingrese la cantidad del producto: '))
+    precio = pedir_flotante('Ingrese el precio del producto: ')
+    cantidad = pedir_entero('Ingrese la cantidad del producto: ')
     
     p = buscar_producto(nombre, inventario)
     
@@ -50,15 +63,13 @@ def agregar_producto(inventario):
             print('No se sumó la cantidad y no se agregó un producto nuevo.\n')
         
         else:
-            print('Opción no reconocida.\n')
+            print('Opción no válida.\n')
             
     else:
         producto = {'nombre': nombre, 'precio': precio, 'cantidad': cantidad}
         inventario.append(producto)
         print('Producto agregado exitosamente.\n')
 
-
-# MOSTRAR INVENTARIO
 def mostrar_inventario(inventario):
     """Muestra los productos del inventario."""
     print('Mostrando inventario:\n')
@@ -71,8 +82,6 @@ def mostrar_inventario(inventario):
         print(f"{p['nombre']} | Precio: ${p['precio']} | Cantidad: {p['cantidad']}")
     print()
 
-
-# MODIFICAR PRODUCTO
 def modificar_producto(inventario):
     """Permite modificar nombre, precio o cantidad de un producto."""
     print('Modificando producto:\n')
@@ -90,18 +99,18 @@ def modificar_producto(inventario):
             print('3. Cantidad')
             print('4. Salir')
             
-            cambio = int(input('¿Qué dato desea modificar?: '))
+            cambio = pedir_entero('¿Qué dato desea modificar?: ')
             
             if cambio == 1:
                 nuevo_nombre = input(f'Nuevo nombre para "{p["nombre"]}": ')
                 p['nombre'] = nuevo_nombre.strip().title()
             
             elif cambio == 2:
-                nuevo_precio = float(input(f'Nuevo precio (actual ${p["precio"]}): '))
+                nuevo_precio = pedir_flotante(f'Nuevo precio (actual ${p["precio"]}): ')
                 p['precio'] = nuevo_precio
             
             elif cambio == 3:
-                nueva_cantidad = int(input(f'Nueva cantidad (actual {p["cantidad"]}): '))
+                nueva_cantidad = pedir_entero(f'Nueva cantidad (actual {p["cantidad"]}): ')
                 p['cantidad'] = nueva_cantidad
             
             elif cambio == 4:
@@ -111,10 +120,8 @@ def modificar_producto(inventario):
                 print('Opción no válida.\n')
                 
     else:
-        print(f'El producto "{producto.lower()}" no existe en el inventario.\n')
+        print(f'El producto "{producto}" no existe en el inventario.\n')
 
-
-# ELIMINAR PRODUCTO
 def eliminar_producto(inventario):
     """Elimina un producto del inventario si existe."""
     print('Eliminando producto:\n')
@@ -141,7 +148,7 @@ def eliminar_producto(inventario):
 # BUCLE PRINCIPAL
 while True:
     mostrar_menu()
-    eleccion = int(input('Ingrese el número de la opción deseada: '))
+    eleccion = pedir_entero('Ingrese el número de la opción deseada: ')
     print()
 
     if eleccion == 1:
@@ -162,4 +169,4 @@ while True:
         break
 
     else:
-        print('\nOpción inválida. Intente nuevamente.\n')
+        print('\nOpción no válida. Intente nuevamente.\n')
