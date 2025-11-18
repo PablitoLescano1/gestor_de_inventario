@@ -106,10 +106,48 @@ def mostrar_inventario(inventario):
     if len(inventario) == 0:
         print('No hay productos registrados.\n')
         return
+    
+    print('1. A-Z')
+    print('2. Z-A')
+    print('3. Precio menor a mayor')
+    print('4. Precio mayor a menor')
+    print('5. Cantidad menor a mayor')
+    print('6. Cantidad mayor a menor\n')
 
-    for p in inventario:
-        print(f"{p['nombre']} | Precio: ${p['precio']:.2f} | Cantidad: {p['cantidad']}")
-    print()
+    orden_productos = pedir_entero('Ingrese el orden que desea: ')
+
+    if orden_productos == 1:
+        for p in sorted(inventario, key=lambda p: p['nombre']):
+            print(f"{p['nombre']} | Precio: ${p['precio']:.2f} | Cantidad: {p['cantidad']}")
+        print()
+
+    elif orden_productos == 2:
+        for p in sorted(inventario, key=lambda p: p['nombre'], reverse=True):
+            print(f"{p['nombre']} | Precio: ${p['precio']:.2f} | Cantidad: {p['cantidad']}")
+        print()
+
+    elif orden_productos == 3:
+        for p in sorted(inventario, key=lambda p: p['precio']):
+            print(f"{p['nombre']} | Precio: ${p['precio']:.2f} | Cantidad: {p['cantidad']}")
+        print()
+    
+    elif orden_productos == 4:
+        for p in sorted(inventario, key=lambda p: p['precio'], reverse=True):
+            print(f"{p['nombre']} | Precio: ${p['precio']:.2f} | Cantidad: {p['cantidad']}")
+        print()
+    
+    elif orden_productos == 5:
+        for p in sorted(inventario, key=lambda p: p['cantidad']):
+            print(f"{p['nombre']} | Precio: ${p['precio']:.2f} | Cantidad: {p['cantidad']}")
+        print()
+    
+    elif orden_productos == 6:
+        for p in sorted(inventario, key=lambda p: p['cantidad'], reverse=True):
+            print(f"{p['nombre']} | Precio: ${p['precio']:.2f} | Cantidad: {p['cantidad']}")
+        print()
+    
+    else:
+        print('Opción no válida.\n')
 
 
 def modificar_producto(inventario):
@@ -133,8 +171,20 @@ def modificar_producto(inventario):
             cambio = pedir_entero('¿Qué dato desea modificar?: ')
 
             if cambio == 1:
-                nuevo_nombre = input(f'Nuevo nombre para "{p["nombre"]}": ')
-                p['nombre'] = nuevo_nombre.strip().title()
+                nuevo_nombre = input(f'Nuevo nombre para "{p["nombre"]}": ').strip().title()
+                existe = buscar_producto(nuevo_nombre, inventario)
+
+                if existe and existe is not p:
+                    print(f'Ya existe un producto con el nombre "{nuevo_nombre}".\n')
+                    print('El nombre no ha cambiado.')
+
+                elif existe is p:
+                    print('El nombre ingresado es igual al actual. No se realizaron cambios.\n')
+
+                else:
+                    p['nombre'] = nuevo_nombre.strip().title()
+                    print("Nombre actualizado correctamente.\n")
+
 
             elif cambio == 2:
                 nuevo_precio = pedir_flotante(f'Nuevo precio (actual ${p["precio"]:.2f}): ')
