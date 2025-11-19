@@ -1,9 +1,26 @@
 # Sistema de Inventario
 # Autor: Stéfano Bertone
 
+import json
+
 print('\nGESTOR DE INVENTARIO\n')
 
-inventario = []
+def cargar_inventario():
+    """Carga el archivo .JSON"""
+    try:
+        with open("inventario.json", "r", encoding="utf-8") as archivo:
+            return json.load(archivo)
+    except FileNotFoundError:
+        return []
+
+
+def guardar_inventario(inventario):
+    """Guarda en el archivo .JSON"""
+    with open("inventario.json", "w", encoding="utf-8") as archivo:
+        json.dump(inventario, archivo, indent=4, ensure_ascii=False)
+
+
+inventario = cargar_inventario()
 
 
 # MENÚ PRINCIPAL
@@ -79,6 +96,7 @@ def agregar_producto(inventario):
 
             if preguntar_si_no('¿Desea sumar la cantidad ingresada al producto existente? (si/no): '):
                 p['cantidad'] += cantidad
+                guardar_inventario(inventario)
                 print('La cantidad se sumó correctamente.\n')
 
             else:
@@ -88,6 +106,7 @@ def agregar_producto(inventario):
             producto = {'nombre': nombre, 'precio': precio, 'cantidad': cantidad}
             inventario.append(producto)
             print('Producto agregado correctamente.\n')
+            guardar_inventario(inventario)
             
     elif (precio < 0) or (cantidad < 0):
         
@@ -183,6 +202,7 @@ def modificar_producto(inventario):
 
                 else:
                     p['nombre'] = nuevo_nombre.strip().title()
+                    guardar_inventario(inventario)
                     print("Nombre actualizado correctamente.\n")
 
 
@@ -190,6 +210,8 @@ def modificar_producto(inventario):
                 nuevo_precio = pedir_flotante(f'Nuevo precio (actual ${p["precio"]:.2f}): ')
                 if nuevo_precio >= 0:
                     p['precio'] = nuevo_precio
+                    guardar_inventario(inventario)
+                    print('Precio actualizado correctamente.\n')
                 else:
                     print('El precio debe ser un número positivo.')
 
@@ -197,6 +219,8 @@ def modificar_producto(inventario):
                 nueva_cantidad = pedir_entero(f'Nueva cantidad (actual {p["cantidad"]}): ')
                 if nueva_cantidad >= 0:
                     p['cantidad'] = nueva_cantidad
+                    guardar_inventario(inventario)
+                    print('Cantidad actualizada correctamente.\n')
                 else:
                     print('La cantidad debe ser un número positivo.')
 
@@ -223,6 +247,7 @@ def eliminar_producto(inventario):
 
         if preguntar_si_no('¿Desea eliminar este producto? (si/no): '):
             inventario.remove(p)
+            guardar_inventario(inventario)
             print('El producto se eliminó correctamente.\n')
 
         else:
