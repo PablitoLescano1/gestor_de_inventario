@@ -1,9 +1,4 @@
-# Sistema de Inventario
-# Autor: Stéfano Bertone
-
 import json
-
-print('\nGESTOR DE INVENTARIO\n')
 
 def cargar_inventario():
     """Carga el archivo .JSON"""
@@ -21,18 +16,6 @@ def guardar_inventario(inventario):
 
 
 inventario = cargar_inventario()
-
-
-# MENÚ PRINCIPAL
-def mostrar_menu():
-    """Menú principal del sistema."""
-    
-    print('Menú principal:\n')
-    print('1. Agregar producto.')
-    print('2. Mostrar inventario.')
-    print('3. Modificar producto.')
-    print('4. Eliminar producto.')
-    print('5. Salir.\n')
 
 
 # BÚSQUEDA DE PRODUCTO EN EL INVENTARIO
@@ -252,29 +235,3 @@ def eliminar_producto(inventario):
 
         else:
             print('El producto no será eliminado.\n')
-
-
-# BUCLE PRINCIPAL
-while True:
-    mostrar_menu()
-    eleccion = pedir_entero('Ingrese el número de la opción deseada: ')
-    print()
-
-    if eleccion == 1:
-        agregar_producto(inventario)
-
-    elif eleccion == 2:
-        mostrar_inventario(inventario)
-
-    elif eleccion == 3:
-        modificar_producto(inventario)
-
-    elif eleccion == 4:
-        eliminar_producto(inventario)
-
-    elif eleccion == 5:
-        print('\nHasta luego.\n')
-        break
-
-    else:
-        print('\nOpción no válida. Intente nuevamente.\n')
