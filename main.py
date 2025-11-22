@@ -4,7 +4,7 @@ from inventario import (
     mostrar_inventario,
     modificar_producto,
     eliminar_producto,
-    pedir_entero
+    validar_dato,
 )
 
 print('\nGESTOR DE INVENTARIO\n')
@@ -23,7 +23,7 @@ def mostrar_menu():
 # BUCLE PRINCIPAL
 while True:
     mostrar_menu()
-    eleccion = pedir_entero('Ingrese el número de la opción deseada: ')
+    eleccion = validar_dato('Ingrese el número de la opción deseada: ', int)
     print()
 
     if eleccion == 1:

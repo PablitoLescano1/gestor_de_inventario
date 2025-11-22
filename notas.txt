@@ -1,0 +1,39 @@
+branchear y poner lo de la rama
+
+
+Categorías
+Búsqueda parcial
+Historial de cambios(sensilla pero mejorable)
+Backup automático
+Restaurar productos eliminados
+Duplicar producto
+Exportar a CSV
+Suma/resta en modificación
+Filtros adicionales en inventario
+Modularización completa
+Estructura final de commits
+(Opcional) colores o estilos
+(Opcional) configuración externa
+Campos dinámicos definidos por el usuario
+
+
+
+[dd/mm/aaaa HH:MM] {acción}: {detalle}
+Ejemplos:
+
+✔ Alta
+[20/11/2025 17:35] Alta: Producto "Manzana Roja" creado.
+✔ Modificación
+[20/11/2025 17:36] Modificación: Se cambió "precio" de 120 → 130 en "Manzana Roja".
+✔ Eliminación
+[20/11/2025 17:40] Eliminación: Se eliminó "USB 3.0 Kingston".
+✔ Restauración
+[20/11/2025 18:10] Restauración: Se restauró "USB 3.0 Kingston".
+✔ Duplicación
+[20/11/2025 18:12] Duplicación: "Taladro Bosch" duplicado como "Taladro Bosch (Copia)".
+✔ Añadir campo dinámico
+[20/11/2025 18:20] Campo agregado: Se añadió el campo "Color".
+✔ Cambio en campo dinámico
+[20/11/2025 18:21] Campo modificado: "Peso" cambió su tipo de int → float.
+✔ Eliminación de campo
+[20/11/2025 18:22] Campo eliminado: "Vencimiento".

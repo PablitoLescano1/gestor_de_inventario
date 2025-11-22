@@ -1,5 +1,24 @@
 import json
 
+def cargar_campos():
+    """Carga los campos definidos por el usuario desde campos.json"""
+
+    try:
+        with open("campos.json", "r", encoding="utf-8") as archivo:
+            return json.load(archivo)
+    except FileNotFoundError:
+        return {}
+
+
+def guardar_campos(campos):
+    """Guarda los campos definidos por el usuario en campos.json"""
+    with open("campos.json", "w", encoding="utf-8") as archivo:
+        json.dump(campos, archivo, indent=4, ensure_ascii=False)
+
+
+campos = cargar_campos()
+
+
 def cargar_inventario():
     """Carga el archivo .JSON"""
     try:
@@ -18,7 +37,14 @@ def guardar_inventario(inventario):
 inventario = cargar_inventario()
 
 
-# BÚSQUEDA DE PRODUCTO EN EL INVENTARIO
+def producto_duplicado(nuevo, inventario):
+    """Devuelve True si existe un producto idéntico en todos los campos."""
+    for p in inventario:
+        if p == nuevo:
+            return True
+    return False
+
+
 def buscar_producto(nombre, inventario):
     """Busca un producto por nombre y devuelve el diccionario si existe."""
     
@@ -28,39 +54,42 @@ def buscar_producto(nombre, inventario):
     return None
 
 
-def pedir_entero(mensaje):
-    """Valida la entrada de un número entero."""
-    
+def validar_dato(mensaje, tipo_esperado):
+    """Valida que los datos sean del tipo correcto"""
+
     while True:
-        try:
-            return int(input(mensaje))
-        except ValueError:
-            print("Error: ingrese un número entero válido.")
+        dato = input(mensaje)
 
+        if tipo_esperado == str:
+            if not dato.strip():
+                print('Error: ingrese un nombre válido.')
+                continue
+            return dato
+        
+        if tipo_esperado == bool:
+            if dato.strip().lower() in ['si', 'sí', 's', '1', 'true', 'verdadero', 't', 'y', 'yes']:
+                return True
+            elif dato.strip().lower() in ['no', 'n', '0', 'false', 'falso', 'f']:
+                return False
+            else:
+                print('Error: ingrese un booleano válido.')
+                continue
+        
+        if tipo_esperado == int:
+            try:
+                return int(dato)
+            except ValueError:
+                print('Error: ingrese un numero valido')
+                continue
+            
+        if tipo_esperado == float:
+            try:
+                return float(dato)
+            except ValueError:
+                print("Error: ingrese un número válido.")
+                continue
+            
 
-def pedir_flotante(mensaje):
-    """Valida la entrada de un número flotante."""
-    
-    while True:
-        try:
-            return float(input(mensaje))
-        except ValueError:
-            print("Error: ingrese un número válido.")
-
-
-def preguntar_si_no(mensaje):
-    """Solicita una respuesta sí/no y devuelve True o False."""
-    
-    while True:
-        r = input(mensaje).strip().lower()
-        if r in ('si', 'sí', 's'):
-            return True
-        if r in ('no', 'n'):
-            return False
-        print("Opción no válida. Responda «sí» o «no».")
-
-
-def pedir_nombre(mensaje):
     """Pide un nombre valido(no vacio) y lo devuelve formateado."""
 
     while True:
@@ -72,44 +101,63 @@ def pedir_nombre(mensaje):
             return nombre
     
 
+def crear_campo(campos):
+    """Crea campos a eleccion del usuario"""
+
+    campo = pedir_nombre('Ingrese el nombre del campo que desea agregar: ')
+    if campo in campos:
+        print(f'El campo {campo} ya existe en los campos actuales.')
+        return
+
+    print("Tipos de datos posibles: texto, num entero, num decimal, V/F, fecha")
+    tipo = input(f'Ingrese el tipo de dato para "{campo}": ').strip().lower()
+
+    if tipo not in ('texto', 'num entero', 'num decimal', 'V/F', 'fecha'):
+        print("Tipo no válido. Se asigna 'texto' por defecto.")
+        tipo = 'string'
+
+    campos[campo] = tipo
+    guardar_campos(campos)
+    print(f'Campo "{campo}" agregado correctamente con tipo "{tipo}".')
+
+
 def agregar_producto(inventario):
-    """Agrega un producto nuevo o suma la cantidad si ya existe.""" 
-    
+    """Agrega un producto nuevo verificando duplicados."""
+
     print('Agregando producto:\n')
+    nuevo_producto = {}
 
-    nombre = pedir_nombre('Ingrese el nombre del producto: ')
-    precio = pedir_flotante('Ingrese el precio del producto: ')
-    cantidad = pedir_entero('Ingrese la cantidad del producto: ')
+    for campo in campos:
+        tipo_logico = campos[campo]
 
-    p = buscar_producto(nombre, inventario)
-
-    if (precio >= 0) and (cantidad >= 0):
-        
-        if p:
-            print(f'El producto "{nombre}" ya existe en el inventario.')
-            print(f'{p["nombre"]} | Precio: ${p["precio"]:.2f} | Cantidad: {p["cantidad"]}')
-
-            if preguntar_si_no('¿Desea sumar la cantidad ingresada al producto existente? (si/no): '):
-                p['cantidad'] += cantidad
-                guardar_inventario(inventario)
-                print('La cantidad se sumó correctamente.\n')
-
-            else:
-                print('No se sumó la cantidad y no se agregó un producto nuevo.\n')
-        
+        if tipo_logico == 'texto':
+            tipo_python = str
+        elif tipo_logico == 'num entero':
+            tipo_python = int
+        elif tipo_logico == 'num decimal':
+            tipo_python = float
+        elif tipo_logico == 'v/f':
+            tipo_python = bool
+        elif tipo_logico == 'fecha':
+            tipo_python = str
         else:
-            producto = {'nombre': nombre, 'precio': precio, 'cantidad': cantidad}
-            inventario.append(producto)
-            print('Producto agregado correctamente.\n')
-            guardar_inventario(inventario)
-            
-    elif (precio < 0) or (cantidad < 0):
-        
-        if precio < 0:
-            print('El precio no puede ser un número negativo.')
-        
-        if cantidad < 0:
-            print('La cantidad no debería ser un número negativo.')
+            tipo_python = str
+
+        dato = validar_dato(f'Ingrese el valor de {campo}: ', tipo_python)
+        nuevo_producto[campo] = dato
+
+    if producto_duplicado(nuevo_producto, inventario):
+        print("\nAdvertencia: este producto ya existe con todos los campos idénticos.")
+        decision = validar_dato("¿Desea añadirlo igual? (si/no): ", bool)
+
+        if not decision:
+            print("Operación cancelada.\n")
+            return
+
+    inventario.append(nuevo_producto)
+    guardar_inventario(inventario)
+
+    print("Producto agregado correctamente.\n")
 
 
 def mostrar_inventario(inventario):
@@ -128,7 +176,7 @@ def mostrar_inventario(inventario):
     print('5. Cantidad menor a mayor')
     print('6. Cantidad mayor a menor\n')
 
-    orden_productos = pedir_entero('Ingrese el orden que desea: ')
+    orden_productos = validar_dato('Ingrese el orden que desea: ', int)
 
     if orden_productos == 1:
         for p in sorted(inventario, key=lambda p: p['nombre']):
@@ -182,10 +230,10 @@ def modificar_producto(inventario):
             print('3. Cantidad')
             print('4. Salir\n')
 
-            cambio = pedir_entero('¿Qué dato desea modificar?: ')
+            cambio = validar_dato('¿Qué dato desea modificar?: ', int)
 
             if cambio == 1:
-                nuevo_nombre = pedir_nombre(f'Nuevo nombre para "{p["nombre"]}": ')
+                nuevo_nombre = validar_dato(f'Nuevo nombre para "{p["nombre"]}": ', str)
                 existe = buscar_producto(nuevo_nombre, inventario)
 
                 if existe and existe is not p:
@@ -202,7 +250,7 @@ def modificar_producto(inventario):
 
 
             elif cambio == 2:
-                nuevo_precio = pedir_flotante(f'Nuevo precio (actual ${p["precio"]:.2f}): ')
+                nuevo_precio = validar_dato(f'Nuevo precio (actual ${p["precio"]:.2f}): ', float)
                 if nuevo_precio >= 0:
                     p['precio'] = nuevo_precio
                     guardar_inventario(inventario)
@@ -211,7 +259,7 @@ def modificar_producto(inventario):
                     print('El precio debe ser un número positivo.')
 
             elif cambio == 3:
-                nueva_cantidad = pedir_entero(f'Nueva cantidad (actual {p["cantidad"]}): ')
+                nueva_cantidad = validar_dato(f'Nueva cantidad (actual {p["cantidad"]}): ', int)
                 if nueva_cantidad >= 0:
                     p['cantidad'] = nueva_cantidad
                     guardar_inventario(inventario)
@@ -234,13 +282,13 @@ def eliminar_producto(inventario):
     
     print('Eliminando producto:\n')
 
-    producto = pedir_nombre('¿Qué producto desea eliminar?: ')
+    producto = validar_dato('¿Qué producto desea eliminar?: ', str)
     p = buscar_producto(producto, inventario)
 
     if p:
         print(f"\nNombre: {p['nombre']}\nPrecio: ${p['precio']:.2f}\nCantidad: {p['cantidad']}\n")
 
-        if preguntar_si_no('¿Desea eliminar este producto? (si/no): '):
+        if validar_dato('¿Desea eliminar este producto? (si/no): ', bool):
             inventario.remove(p)
             guardar_inventario(inventario)
             print('El producto se eliminó correctamente.\n')
