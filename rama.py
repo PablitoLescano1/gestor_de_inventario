@@ -1,5 +1,24 @@
 import json
 
+def cargar_campos():
+    """Carga los campos definidos por el usuario desde campos.json"""
+
+    try:
+        with open("campos.json", "r", encoding="utf-8") as archivo:
+            return json.load(archivo)
+    except FileNotFoundError:
+        return {}
+
+
+def guardar_campos(campos):
+    """Guarda los campos definidos por el usuario en campos.json"""
+    with open("campos.json", "w", encoding="utf-8") as archivo:
+        json.dump(campos, archivo, indent=4, ensure_ascii=False)
+
+
+campos = cargar_campos()
+
+
 def cargar_inventario():
     """Carga el archivo .JSON"""
     try:
@@ -18,7 +37,6 @@ def guardar_inventario(inventario):
 inventario = cargar_inventario()
 
 
-# BÚSQUEDA DE PRODUCTO EN EL INVENTARIO
 def buscar_producto(nombre, inventario):
     """Busca un producto por nombre y devuelve el diccionario si existe."""
     
@@ -72,44 +90,33 @@ def pedir_nombre(mensaje):
             return nombre
     
 
+def crear_campo(campos):
+    """Crea campos a eleccion del usuario"""
+
+    campo = pedir_nombre('Ingrese el nombre del campo que desea agregar: ')
+    if campo in campos:
+        print(f'El campo {campo} ya existe en los campos actuales.')
+        return
+
+    print("Tipos de datos posibles: string, int, float, boolean, date")
+    tipo = input(f'Ingrese el tipo de dato para "{campo}": ').strip().lower()
+
+    if tipo not in ('string', 'int', 'float', 'boolean', 'date'):
+        print("Tipo no válido. Se asigna 'string' por defecto.")
+        tipo = 'string'
+
+    campos[campo] = tipo
+    guardar_campos(campos)
+    print(f'Campo "{campo}" agregado correctamente con tipo "{tipo}".')
+
+
 def agregar_producto(inventario):
     """Agrega un producto nuevo o suma la cantidad si ya existe.""" 
     
     print('Agregando producto:\n')
 
-    nombre = pedir_nombre('Ingrese el nombre del producto: ')
-    precio = pedir_flotante('Ingrese el precio del producto: ')
-    cantidad = pedir_entero('Ingrese la cantidad del producto: ')
-
-    p = buscar_producto(nombre, inventario)
-
-    if (precio >= 0) and (cantidad >= 0):
+    for campo in campos:
         
-        if p:
-            print(f'El producto "{nombre}" ya existe en el inventario.')
-            print(f'{p["nombre"]} | Precio: ${p["precio"]:.2f} | Cantidad: {p["cantidad"]}')
-
-            if preguntar_si_no('¿Desea sumar la cantidad ingresada al producto existente? (si/no): '):
-                p['cantidad'] += cantidad
-                guardar_inventario(inventario)
-                print('La cantidad se sumó correctamente.\n')
-
-            else:
-                print('No se sumó la cantidad y no se agregó un producto nuevo.\n')
-        
-        else:
-            producto = {'nombre': nombre, 'precio': precio, 'cantidad': cantidad}
-            inventario.append(producto)
-            print('Producto agregado correctamente.\n')
-            guardar_inventario(inventario)
-            
-    elif (precio < 0) or (cantidad < 0):
-        
-        if precio < 0:
-            print('El precio no puede ser un número negativo.')
-        
-        if cantidad < 0:
-            print('La cantidad no debería ser un número negativo.')
 
 
 def mostrar_inventario(inventario):
