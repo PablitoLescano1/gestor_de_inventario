@@ -5,6 +5,7 @@ from inventario import (
     modificar_producto,
     eliminar_producto,
     validar_dato,
+    ordenar_y_mostrar,
 )
 
 print('\nGESTOR DE INVENTARIO\n')
@@ -12,7 +13,6 @@ print('\nGESTOR DE INVENTARIO\n')
 # MENÚ PRINCIPAL
 def mostrar_menu():
     """Menú principal del sistema."""
-    
     print('Menú principal:\n')
     print('1. Agregar producto.')
     print('2. Mostrar inventario.')
@@ -30,7 +30,7 @@ while True:
         agregar_producto(inventario)
 
     elif eleccion == 2:
-        mostrar_inventario(inventario)
+        ordenar_y_mostrar(inventario)
 
     elif eleccion == 3:
         modificar_producto(inventario)
