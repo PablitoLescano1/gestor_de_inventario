@@ -1,60 +1,129 @@
-from inventario import (
-    inventario,
-    campos,
+from servicios.campo_servicio import (
+    crear_campo,
+    modificar_campo,
+    eliminar_campo,
+    cargar_campos
+)
+
+from servicios.inventario_servicio import (
     agregar_producto,
     mostrar_inventario,
     modificar_producto,
     eliminar_producto,
-    validar_dato,
-    ordenar_y_mostrar,
-    crear_campo,
+    ordenar_inventario
 )
 
-print('\nGESTOR DE INVENTARIO\n')
+from servicios.busquedas_servicio import buscar_producto
 
 
 def mostrar_menu():
-    """Menú principal del sistema."""
-    print('Menú principal:\n')
-    print('1. Crear campo.')
-    print('2. Agregar producto.')
-    print('3. Mostrar inventario.')
-    print('4. Modificar producto.')
-    print('5. Eliminar producto.')
-    print('6. Salir.\n')
+    print("\nGESTOR DE INVENTARIO")
+    print("1. Crear campo")
+    print("2. Modificar campo")
+    print("3. Eliminar campo")
+    print("4. Agregar producto")
+    print("5. Mostrar inventario")
+    print("6. Modificar producto")
+    print("7. Eliminar producto")
+    print("8. Salir\n")
+
+
+def pedir_datos_producto():
+    campos = cargar_campos()
+    datos = {}
+
+    print("\nComplete los datos del producto:")
+    for campo in campos:
+        datos[campo] = input(f"{campo}: ").strip()
+
+    return datos
 
 
 while True:
     mostrar_menu()
-    eleccion = validar_dato('Ingrese el número de la opción deseada: ', int)
-    print()
+    opcion = input("Seleccione una opción: ").strip()
 
-    if eleccion == 1:
-        nombre = input("Ingrese el nombre del campo que desea agregar: ").strip()
-        tipo = input('Tipo de dato ("texto", "num entero", "num decimal", "v/f", "fecha"): ').strip()
+    if opcion == "1":
+        nombre = input("Nombre del nuevo campo: ").strip()
+        tipo = input('Tipo ("texto", "num entero", "num decimal", "v/f", "fecha"): ').strip()
 
-        ok, err = crear_campo(campos, nombre, tipo)
+        ok, msg = crear_campo(nombre, tipo)
+        print(msg if not ok else "Campo creado correctamente.")
+
+    elif opcion == "2":
+        nombre = input("Campo a modificar: ").strip()
+        nuevo_nombre = input("Nuevo nombre (Enter para no cambiar): ").strip() or None
+        nuevo_tipo = input("Nuevo tipo (Enter para no cambiar): ").strip() or None
+
+        ok, msg = modificar_campo(nombre, nuevo_nombre, nuevo_tipo)
+        print(msg if not ok else "Campo modificado.")
+
+    elif opcion == "3":
+        nombre = input("Campo a eliminar: ").strip()
+        ok, msg = eliminar_campo(nombre)
+        print(msg if not ok else "Campo eliminado.")
+
+    elif opcion == "4":
+        datos = pedir_datos_producto()
+        ok, resultado = agregar_producto(datos)
 
         if ok:
-            print("Campo creado correctamente.\n")
+            print("Producto agregado.")
         else:
-            print("Error:", err, "\n")
+            print("No se pudo agregar:")
+            print(resultado)
 
-    elif eleccion == 2:
-        agregar_producto(inventario, campos)
+    elif opcion == "5":
+        ok, lista = mostrar_inventario()
+        if not ok:
+            print(lista)
+        else:
+            print("\nINVENTARIO:")
+            for fila in lista:
+                print(fila)
 
-    elif eleccion == 3:
-        ordenar_y_mostrar(inventario)
+    elif opcion == "6":
+        campo = input("Campo para buscar: ").strip()
+        valor = input("Valor a buscar: ").strip()
 
-    elif eleccion == 4:
-        modificar_producto(inventario)
+        nuevos = {}
+        print("\nIngrese nuevos valores:")
+        while True:
+            c = input("Campo (Enter para terminar): ").strip()
+            if not c:
+                break
+            v = input("Nuevo valor: ").strip()
+            nuevos[c] = v
 
-    elif eleccion == 5:
-        eliminar_producto(inventario)
+        ok, resultado = modificar_producto({campo: valor}, nuevos)
 
-    elif eleccion == 6:
-        print('\nHasta luego.\n')
+        if ok is True:
+            print("Producto modificado.")
+        elif ok is None:
+            print("Múltiples coincidencias:")
+            for p in resultado:
+                print(p)
+        else:
+            print(resultado)
+
+    elif opcion == "7":
+        campo = input("Campo para buscar: ").strip()
+        valor = input("Valor: ").strip()
+
+        ok, resultado = eliminar_producto({campo: valor})
+
+        if ok is True:
+            print("Producto eliminado.")
+        elif ok is None:
+            print("Múltiples coincidencias:")
+            for p in resultado:
+                print(p)
+        else:
+            print(resultado)
+
+    elif opcion == "8":
+        print("Hasta luego.")
         break
 
     else:
-        print('\nOpción no válida. Intente nuevamente.\n')
+        print("Opción inválida.")

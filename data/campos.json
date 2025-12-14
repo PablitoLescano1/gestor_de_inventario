@@ -1,6 +1,0 @@
-{
-    "nombre": "texto",
-    "precio": "num entero",
-    "disponible": "v/f",
-    "fecha_ingreso": "fecha"
-}
