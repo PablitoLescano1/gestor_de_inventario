@@ -1,9 +1,10 @@
 import os
+import json
 
-# Directorio base del proyecto (raíz)
+# Directorio base del proyecto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Carpeta de datos
+# Carpeta 'datos'
 DATA_DIR = os.path.join(BASE_DIR, "datos")
 
 # Archivos principales
@@ -23,12 +24,11 @@ def asegurar_estructura():
         RUTA_CAMPOS: {},
         RUTA_CAMPOS_UNICOS: [],
         RUTA_INVENTARIO: [],
-        RUTA_HISTORIAL: []
+        RUTA_HISTORIAL: [],
+        RUTA_PAPELERA: []
     }
 
     for ruta, contenido_inicial in archivos_base.items():
         if not os.path.exists(ruta):
             with open(ruta, "w", encoding="utf-8") as f:
-                import json
                 json.dump(contenido_inicial, f, indent=4, ensure_ascii=False)
-                

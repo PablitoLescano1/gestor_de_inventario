@@ -1,6 +1,6 @@
-from almacenamiento import cargar_inventario
-from campo_servicio import cargar_campos
-from campo_unico_servicio import es_campo_unico
+from servicios.almacenamiento import cargar_inventario
+from servicios.campo_servicio import cargar_campos
+from servicios.campo_unico_servicio import es_campo_unico
 
 
 def producto_duplicado(nuevo, inventario=None):
@@ -16,7 +16,7 @@ def producto_duplicado(nuevo, inventario=None):
 
 
 def buscar_producto(valor_busqueda, campo_clave, inventario=None):
-    """Busca productos cuyo valor en 'campo_clave' coincida parcial o totalmentecon 'valor_busqueda'."""
+    """Busca productos cuyo valor en 'campo_clave' coincida parcial o totalmente con 'valor_busqueda'."""
 
     campos = cargar_campos()
     if campo_clave not in campos:
@@ -26,7 +26,7 @@ def buscar_producto(valor_busqueda, campo_clave, inventario=None):
         inventario = cargar_inventario()
 
     valor_busqueda = str(valor_busqueda).lower().strip()
-    coincidencias = []
+    resultados = []
 
     for producto in inventario:
         valor_producto = producto.get(campo_clave)
@@ -35,15 +35,15 @@ def buscar_producto(valor_busqueda, campo_clave, inventario=None):
             continue
 
         if valor_busqueda in str(valor_producto).lower():
-            coincidencias.append(producto)
+            resultados.append(producto)
 
-    return coincidencias
+    return resultados
 
 
 def buscar_similares(criterios, inventario=None):
     """Devuelve productos que coinciden parcialmente con TODOS los criterios."""
 
-    if not criterios or not isinstance(criterios, dict):
+    if not isinstance(criterios, dict) or not criterios:
         return []
 
     campos = cargar_campos()
@@ -57,20 +57,15 @@ def buscar_similares(criterios, inventario=None):
     resultados = []
 
     for producto in inventario:
-        coincide_todo = True
-
         for campo, valor in criterios.items():
             valor_producto = producto.get(campo)
 
             if valor_producto is None:
-                coincide_todo = False
                 break
 
             if str(valor).lower().strip() not in str(valor_producto).lower():
-                coincide_todo = False
                 break
-
-        if coincide_todo:
+        else:
             resultados.append(producto)
 
     return resultados

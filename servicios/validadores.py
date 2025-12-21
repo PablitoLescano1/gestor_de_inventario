@@ -1,6 +1,11 @@
 from datetime import datetime
 
 
+# Valores aceptados para booleanos
+POSITIVOS = {'si', 'sí', 's', 'true', '1', 'verdadero', 'y', 'yes', 't'}
+NEGATIVOS = {'no', 'n', '0', 'false', 'falso', 'f'}
+
+
 def validar_dato(dato, tipo_esperado):
     """Valida y convierte un dato según el tipo esperado."""
 
@@ -16,12 +21,9 @@ def validar_dato(dato, tipo_esperado):
     if tipo_esperado == bool:
         valor = str(dato).strip().lower()
 
-        positivos = {'si', 'sí', 's', 'true', '1', 'verdadero', 'y', 'yes', 't'}
-        negativos = {'no', 'n', '0', 'false', 'falso', 'f'}
-
-        if valor in positivos:
+        if valor in POSITIVOS:
             return True
-        if valor in negativos:
+        if valor in NEGATIVOS:
             return False
 
         return None
@@ -36,11 +38,12 @@ def validar_dato(dato, tipo_esperado):
     # DECIMAL
     if tipo_esperado == float:
         try:
-            return float(str(dato).strip())
+            dato = str(dato).strip().replace(",", ".")
+            return float(dato)
         except (ValueError, TypeError):
             return None
 
-    # FECHA
+    # FECHA (DD-MM-YYYY)
     if tipo_esperado == "fecha":
         try:
             dato = str(dato).strip()
