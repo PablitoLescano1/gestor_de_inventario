@@ -1,6 +1,8 @@
 import json
 
 from almacenamiento import RUTA_CAMPOS_UNICOS
+from inventario_servicio import cargar_inventario
+from campo_servicio import cargar_campos
 from historial_servicio import registrar_evento
 
 
@@ -28,8 +30,9 @@ def _cargar_campos_unicos():
 def _guardar_campos_unicos(campos):
     """Guarda la lista de campos únicos."""
     
+    campos_ordenados = sorted(set(campos))
     with open(RUTA_CAMPOS_UNICOS, "w", encoding="utf-8") as archivo:
-        json.dump(campos, archivo, indent=4, ensure_ascii=False)
+        json.dump(campos_ordenados, archivo, indent=4, ensure_ascii=False)
 
 
 def es_campo_unico(nombre_campo):
@@ -43,6 +46,33 @@ def es_campo_unico(nombre_campo):
     return nombre in campos_unicos
 
 
+def _detectar_conflictos_unicidad(nombre_campo):
+    """Detecta valores duplicados en inventario para un campo dado."""
+    
+    inventario = cargar_inventario()
+    vistos = {}
+    conflictos = []
+
+    for idx, producto in enumerate(inventario):
+        if nombre_campo not in producto:
+            continue
+
+        valor = producto[nombre_campo]
+        if valor is None:
+            continue
+
+        if valor in vistos:
+            conflictos.append({
+                "campo": nombre_campo,
+                "valor": valor,
+                "productos": [vistos[valor], idx]
+            })
+        else:
+            vistos[valor] = idx
+
+    return conflictos
+
+
 def marcar_campo_unico(nombre_campo):
     """Marca un campo como único."""
     
@@ -50,24 +80,33 @@ def marcar_campo_unico(nombre_campo):
     if not nombre:
         return False, "Nombre de campo inválido."
 
-    campos_unicos = _cargar_campos_unicos()
+    campos_definidos = cargar_campos()
+    if nombre not in campos_definidos:
+        return False, f'El campo "{nombre}" no existe.'
 
+    campos_unicos = _cargar_campos_unicos()
     if nombre in campos_unicos:
         return False, f'El campo "{nombre}" ya es único.'
 
-    estado_anterior = {
-        "campo": nombre,
-        "unico": False
-    }
+    conflictos = _detectar_conflictos_unicidad(nombre)
+    if conflictos:
+        return False, {
+            "motivo": "conflicto_unicidad",
+            "campo": nombre,
+            "conflictos": conflictos,
+            "accion_sugerida": "resolver_valores_duplicados"
+        }
 
     campos_unicos.append(nombre)
     _guardar_campos_unicos(campos_unicos)
 
-    # Historial: marcado como campo unico
     registrar_evento(
         accion="Modificación",
         entidad="campo_unico",
-        antes=estado_anterior,
+        antes={
+            "campo": nombre,
+            "unico": False
+        },
         despues={
             "campo": nombre,
             "unico": True
@@ -85,23 +124,19 @@ def desmarcar_campo_unico(nombre_campo):
         return False, "Nombre de campo inválido."
 
     campos_unicos = _cargar_campos_unicos()
-
     if nombre not in campos_unicos:
         return False, f'El campo "{nombre}" no está marcado como único.'
-
-    estado_anterior = {
-        "campo": nombre,
-        "unico": True
-    }
 
     campos_unicos.remove(nombre)
     _guardar_campos_unicos(campos_unicos)
 
-    # Historial: desmarcado como campo unico
     registrar_evento(
         accion="Modificación",
         entidad="campo_unico",
-        antes=estado_anterior,
+        antes={
+            "campo": nombre,
+            "unico": True
+        },
         despues={
             "campo": nombre,
             "unico": False
@@ -109,3 +144,53 @@ def desmarcar_campo_unico(nombre_campo):
     )
 
     return True, None
+
+
+def restaurar_campo_unico(nombre_campo, permitir_conflictos=False):
+    """Restaura la unicidad de un campo eliminado.
+    Si hay conflictos y permitir_conflictos=False: no restaura.
+    Si permitir_conflictos=True: restaura y marca como conflictivo."""
+        
+    nombre = _normalizar_nombre(nombre_campo)
+    if not nombre:
+        return False, "Nombre de campo inválido."
+
+    campos_definidos = cargar_campos()
+    if nombre not in campos_definidos:
+        return False, f'El campo "{nombre}" no existe.'
+
+    campos_unicos = _cargar_campos_unicos()
+    if nombre in campos_unicos:
+        return False, "El campo ya es único."
+
+    conflictos = _detectar_conflictos_unicidad(nombre)
+    if conflictos and not permitir_conflictos:
+        return False, {
+            "motivo": "conflicto_restauracion_unicidad",
+            "campo": nombre,
+            "conflictos": conflictos,
+            "restaurado": False
+        }
+
+    campos_unicos.append(nombre)
+    _guardar_campos_unicos(campos_unicos)
+
+    registrar_evento(
+        accion="Restauración",
+        entidad="campo_unico",
+        antes={
+            "campo": nombre,
+            "unico": False
+        },
+        despues={
+            "campo": nombre,
+            "unico": True,
+            "conflictivo": bool(conflictos)
+        }
+    )
+
+    return True, {
+        "campo": nombre,
+        "unico": True,
+        "conflictos": conflictos
+    }

@@ -11,6 +11,7 @@ RUTA_CAMPOS = os.path.join(DATA_DIR, "campos.json")
 RUTA_CAMPOS_UNICOS = os.path.join(DATA_DIR, "campos_unicos.json")
 RUTA_INVENTARIO = os.path.join(DATA_DIR, "inventario.json")
 RUTA_HISTORIAL = os.path.join(DATA_DIR, "historial.json")
+RUTA_PAPELERA = os.path.join(DATA_DIR, "papelera.json")
 
 
 def asegurar_estructura():
