@@ -11,20 +11,6 @@ from utilidades.rutas import (
 )
 
 
-def normalizar_nombre(nombre):
-    """Normaliza nombres para uso consistente en todo el sistema.
-
-    - Elimina espacios extra
-    - Convierte valores inválidos en None
-    - Garantiza strings no vacíos
-    """
-
-    if not isinstance(nombre, str):
-        return None
-
-    nombre = " ".join(nombre.strip().split())
-    return nombre if nombre else None
-
 
 def _asegurar_archivo(ruta, valor_inicial):
     """Crea la carpeta de datos y el archivo si no existen."""

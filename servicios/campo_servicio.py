@@ -1,23 +1,27 @@
+# Imports de infraestructura
 from almacenamiento import (
     cargar_campos,
     guardar_campos,
     cargar_inventario,
     guardar_inventario,
-    normalizar_nombre
 )
 
+# Servicios de dominio
 from campo_unico_servicio import (
     marcar_campo_unico,
     desmarcar_campo_unico,
-    es_campo_unico
+    es_campo_unico,
 )
 
 from papelera_servicio import enviar_a_papelera
 from historial_servicio import registrar_evento
+
+# Validaciones y utilidades
 from validadores import validar_dato
+from utilidades.texto import normalizar_nombre
 
 
-# Registro de tipos de campo y su lógica de validación/conversión
+# Tipos de campo soportados y su lógica de validación
 TIPOS_CAMPOS = {
     "texto": {
         "validador": lambda v: validar_dato(v, str)
@@ -37,6 +41,7 @@ TIPOS_CAMPOS = {
 }
 
 
+# Alta de campo
 def crear_campo(nombre, tipo, unico=False):
     """Crea un campo nuevo en el sistema."""
 
@@ -71,6 +76,7 @@ def crear_campo(nombre, tipo, unico=False):
     return True, None
 
 
+# Modificación de campo
 def modificar_campo(nombre_actual, nuevo_nombre=None, nuevo_tipo=None, unico=None):
     """Modifica un campo existente."""
 
@@ -129,7 +135,7 @@ def modificar_campo(nombre_actual, nuevo_nombre=None, nuevo_tipo=None, unico=Non
             marcar_campo_unico(nombre_final)
 
     # Cambio de tipo
-    if nuevo_tipo:
+    if nuevo_tipo is not None:
         campos[nombre_final] = nuevo_tipo
         validador = TIPOS_CAMPOS[nuevo_tipo]["validador"]
 
@@ -161,6 +167,7 @@ def modificar_campo(nombre_actual, nuevo_nombre=None, nuevo_tipo=None, unico=Non
     return True, None
 
 
+# Eliminación de campo
 def eliminar_campo(nombre):
     """Elimina un campo de forma no destructiva."""
 

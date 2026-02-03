@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 notas.txt
 test_inventario.py
+main.py

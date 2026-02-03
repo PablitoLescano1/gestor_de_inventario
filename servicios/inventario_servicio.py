@@ -1,12 +1,16 @@
 import json
 
 from almacenamiento import RUTA_INVENTARIO
+
+# Servicios de dominio
 from campo_servicio import cargar_campos
-from campo_unico_servicio import es_campo_unico
-from validadores import validar_dato
+from campo_unico_servicio import validar_unicidad_producto
 from busquedas_servicio import buscar_similares
 from historial_servicio import registrar_evento
 from papelera_servicio import enviar_a_papelera, restaurar_registro
+
+# Validaciones
+from validadores import validar_dato
 
 
 def cargar_inventario():
@@ -25,27 +29,6 @@ def guardar_inventario(inventario):
 
     with open(RUTA_INVENTARIO, "w", encoding="utf-8") as archivo:
         json.dump(inventario, archivo, indent=4, ensure_ascii=False)
-
-
-def _detectar_conflictos_unicidad(producto, inventario):
-    """Detecta conflictos de campos únicos."""
-
-    conflictos = []
-
-    for campo, valor in producto.items():
-        if not es_campo_unico(campo):
-            continue
-
-        for prod in inventario:
-            if prod.get(campo) == valor:
-                conflictos.append({
-                    "campo": campo,
-                    "valor": valor,
-                    "tipo": "unicidad"
-                })
-                break
-
-    return conflictos
 
 
 def agregar_producto(datos, criterios=None, forzar_agregar=False):
@@ -77,7 +60,7 @@ def agregar_producto(datos, criterios=None, forzar_agregar=False):
 
         nuevo[campo] = valor
 
-    conflictos = _detectar_conflictos_unicidad(nuevo, inventario)
+    conflictos = validar_unicidad_producto(nuevo, inventario)
     if conflictos:
         return False, {
             "motivo": "conflicto_unicidad",
@@ -170,7 +153,7 @@ def restaurar_producto(registro_id):
             "campos": campos_inexistentes
         })
 
-    conflictos = _detectar_conflictos_unicidad(producto, inventario)
+    conflictos = validar_unicidad_producto(producto, inventario)
     if conflictos:
         return False, {
             "motivo": "conflicto_restauracion",
